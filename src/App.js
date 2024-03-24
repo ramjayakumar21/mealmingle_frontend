@@ -5,88 +5,42 @@ import CameraFeed from "./CameraFeed";
 function App() {
   const [image, setImage] = useState(null);
   const videoRef = useRef(null);
-  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [foodList, setFoodList] = useState([]);
 
-  // Function to start the camera
-  const startCamera = () => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-            setIsCameraOn(true);
-          }
-        })
-        .catch((err) => {
-          console.error("Error accessing the camera: ", err);
-        });
+  // Function to fetch food data from the backend
+  const fetchFoodData = async () => {
+    setIsCameraOn(!isCameraOn);
+    try {
+      const response = await fetch("http://localhost:3001/foods");
+      const json_obj = await response.json();
+      console.log(json_obj);
+      setFoodList(json_obj); // Assuming the response.data is an array of food items
+    } catch (error) {
+      console.error("Error fetching food data:", error);
     }
   };
 
-  // Function to stop the camera
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      setIsCameraOn(false);
-    }
+  // Render food items
+  const renderFoodItems = () => {
+    return foodList.map((food, index) => (
+      <div key={index} className="food-entry">
+        <h2>Food: {food.name}</h2>
+        <div>
+          <p>Quantity: {food.quantity}</p>
+          <p>Ripeness: {food.quality}</p>
+        </div>
+        <img src={food.url} alt={food.name} style={{ maxWidth: "200px" }} /> {/* Display the photo */}
+      </div>
+    ));
   };
-
-  // Click handler for the button
-  const handleClick = () => {
-    if (!isCameraOn) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
-  };
-
-  // Cleanup function to stop the camera when the component unmounts
-  useEffect(() => {
-    return () => {
-      if (isCameraOn) {
-        stopCamera();
-      }
-    };
-  }, [isCameraOn]);
 
   return (
     <>
       <h1>Meal Mingle</h1>
-      <div id="photo-upload">
-        {isCameraOn && (
-          <video
-            ref={videoRef}
-            style={{ width: "100%", maxWidth: "500px", maxHeight: "500px" }}
-            autoPlay
-            playsInline
-          ></video>
-        )}
-        <CameraFeed takePhoto={isCameraOn}></CameraFeed>
-        <input
-          type="file"
-          onChange={(e) => setImage(URL.createObjectURL(e.target.files[0]))}
-          accept="image/*"
-          style={{ display: "none" }}
-        />
-        {image && (
-          <img
-            src={image}
-            alt="Uploaded"
-            style={{ maxWidth: "500px", maxHeight: "500px" }}
-          />
-        )}
-      </div>
-      {/* <button
-        onClick={handleClick}
-        style={{
-          fontSize: "1.5em",
-          padding: "10px 20px",
-          cursor: "pointer",
-        }}
-      >
-        {isCameraOn ? "Turn Off Camera" : "Take Picture"}
-      </button> */}
+      <button onClick={fetchFoodData}>{isCameraOn ? "See Available Food" : "Add Food"}</button>
+      {!isCameraOn && foodList.length > 0 && renderFoodItems()}
+      {isCameraOn && <CameraFeed takePhoto={isCameraOn}></CameraFeed>}
     </>
   );
 }

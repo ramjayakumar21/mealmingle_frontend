@@ -20,12 +20,18 @@ h1 {
   height: 100%;
 }
 
+.food-entry {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid black;
+
+}
 button {
-  position: fixed; /* Fixed position relative to the viewport */
-  bottom: 20%; /* Aligns the button at the bottom */
-  left: 50%; /* Starts at the halfway point of the screen */
-  transform: translateX(-50%); /* Centers the button horizontally */
-  /* Ensure your button styling here */
+  margin: 10px;
+  padding: 50px;
 }
 
 img {
