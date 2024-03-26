@@ -1,5 +1,7 @@
 # mealmingle_frontend
 
+PLEASE VISIT https://github.com/ramjayakumar21/mealmingle_backend FOR VIDEO AND DETAILS!
+
 to run mealmingle frontend
 (runs on port 9000)
 
